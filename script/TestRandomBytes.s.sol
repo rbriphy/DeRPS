@@ -23,34 +23,11 @@ contract TestRandomBytesScript is Script {
         SingleRPS singleRPS = new SingleRPS{value: 0.01 ether}();
         console.log("SingleRPS deployed to:", address(singleRPS));
 
-        uint256[3] memory moveCounts;
-        
-         for (uint i = 0; i < 10; i++) {
-            SharedTypes.Move playerMove = SharedTypes.Move.Rock;
-            
-            // Capture the transaction data
-            bytes memory txData = abi.encodeWithSelector(
-                singleRPS.playGame.selector,
-                playerMove
-            );
-            
-            (bool success, bytes memory returnData) = address(singleRPS).call{value: 0.001 ether}(txData);
-            require(success, "Transaction failed");
-            
-            // Parse the emitted event from the return data
-            SharedTypes.Move opponentMove = parseOpponentMove(returnData);
-            
-            moveCounts[uint(opponentMove)]++;
-            console.log("Game", i+1, "- Opponent's move:", uint(opponentMove));
-        }
+       
 
-        console.log("Rock count:", moveCounts[0]);
-        console.log("Paper count:", moveCounts[1]);
-        console.log("Scissors count:", moveCounts[2]);
 
         vm.stopBroadcast();
     }
 
 
     }
-}

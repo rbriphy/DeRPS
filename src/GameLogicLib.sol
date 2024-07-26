@@ -5,7 +5,7 @@ import "./SharedTypes.sol";
 
 library GameLogicLib {
 // Function to determine the outcome of the game
-    function determineOutcome(SharedTypes.Move _playerMove, SharedTypes.Move _opponentMove) public pure returns (SharedTypes.Outcome) {
+    function determineOutcome(SharedTypes.Move _playerMove, SharedTypes.Move _opponentMove) internal pure returns (SharedTypes.Outcome) {
         if (_playerMove == _opponentMove) {
             return SharedTypes.Outcome.Tie;
         } else if (
