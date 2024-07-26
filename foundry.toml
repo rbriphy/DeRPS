@@ -1,6 +1,17 @@
 [profile.default]
-src = "src"
-out = "out"
-libs = ["lib"]
+solc_version = "0.8.23"
+optimizer = false
+via_ir = true
 
-# See more config options https://github.com/foundry-rs/foundry/blob/master/crates/config/README.md#all-options
+fs_permissions = [{ access = "read", path = "./test/identity/v1/permitters/att_doc_sample.bin"}]
+
+remappings = [
+  "./node_modules/@oasisprotocol/sapphire-contracts/contracts=lib/sapphire-paratime/contracts/contracts",
+]
+
+[fmt]
+line_length = 100
+
+[profile.release]
+optimizer = true
+optimizer_runs = 4294967295
