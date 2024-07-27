@@ -9,15 +9,20 @@ contract AdminControls is Ownable(msg.sender), ReentrancyGuard {
     uint256 internal adminPool;
 
     receive() external payable {
-        require(_msgSender() != address(this), "Cannot call receive from this contract");
+        require(msg.sender != address(this), "Cannot call receive from this contract");
         adminPool += msg.value;
     }
 
     function withdrawFunds(uint256 amount) public onlyOwner {
         require(amount <= adminPool, "Withdrawal amount exceeds available funds");
         adminPool -= amount;
-        (bool success, ) = payable(_msgSender()).call{value: amount}("");
+        (bool success, ) = payable(msg.sender).call{value: amount}("");
         require(success, "Transfer failed");
+    }
+    // Getters/views
+
+     function getAdminPoolBalance() public view returns (uint256) {
+        return adminPool;
     }
 
 
