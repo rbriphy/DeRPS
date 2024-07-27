@@ -4,7 +4,6 @@ pragma solidity ^0.8.23;
 import "./SharedTypes.sol";
 import "./GameLogicLib.sol";
 import "./AdminControls.sol";
-import "../node_modules/@oasisprotocol/sapphire-contracts/contracts/Sapphire.sol";
 
 contract SingleRPS is AdminControls {
     
@@ -12,69 +11,34 @@ contract SingleRPS is AdminControls {
         adminPool = msg.value;
     }
 
-    // Struct to track player scores
-    struct Score {
-        uint256 wins;
-        uint256 losses;
-        uint256 ties;
-    }
-    
-
-    // Mappings to track player scores and bets
-    mapping(address => Score) public playerScores;
-    mapping(address => uint256) public playerBets;
-
     // Events emitted when a game is played, a bet is placed, or a user withdraws winnings
     event GamePlayed(address player, SharedTypes.Move playerMove, SharedTypes.Move opponentMove, SharedTypes.Outcome outcome, uint256 bet, uint256 winnings);
     event BetPlaced(address player, uint256 bet);
     event Withdrawal(address player, uint256 amount);
 
     // The maximum bet size and fee charged on each bet
-    uint256 public constant MAX_BET = 0.001 ether;
+    uint256 public constant MAX_BET = 1 ether;
     uint256 public constant FEE_PERCENTAGE = 1;
 
-    // Function to generate a random number (CHANGE FOR SAPPHIRE)
-    function generateRandom() internal view returns (uint) {
-        return uint(bytes32(Sapphire.randomBytes(32, "")));
-  }
-
-    
 
     // Function to play a game
     function playGame(SharedTypes.Move _move) public payable {
-        require(msg.value > 0, "Bet amount must be greater than zero");
         require(msg.value <= MAX_BET, "Bet size exceeds maximum allowed");
         require(uint256(_move) >= 0 && uint256(_move) <= 2, "Invalid move");
 
-
         // Place the bet
-        placeBet(msg.sender, msg.value);
-
-        // Generate a random number between 1 and 3
-        uint256 randomNumber = (generateRandom() % 3);
-
-        // Determine the opponent's move based on the random number
-        SharedTypes.Move opponentMove;
-        if (randomNumber == 0) {
-            opponentMove = SharedTypes.Move.Rock;
-        } else if (randomNumber == 1) {
-            opponentMove = SharedTypes.Move.Paper;
-        } else {
-            opponentMove = SharedTypes.Move.Scissors;
+        if (msg.value > 0) {
+            placeBet(msg.sender, msg.value);
         }
+
+        // Generate a random number between 1 and 3 and convert to the opponent's move
+        uint256 randomNumber = (GameLogicLib.generateRandom() % 3);
+        SharedTypes.Move opponentMove = SharedTypes.Move(randomNumber);
 
         // Determine the outcome of the game
         SharedTypes.Outcome outcome = GameLogicLib.determineOutcome(_move, opponentMove);
 
-        // Update the player's score
-        if (outcome == SharedTypes.Outcome.Win) {
-            playerScores[msg.sender].wins++;
-        } else if (outcome == SharedTypes.Outcome.Lose) {
-            playerScores[msg.sender].losses++;
-        } else {
-            playerScores[msg.sender].ties++;
-        }
-
+        
         // Calculate the winnings
         uint256 winnings;
         if (outcome == SharedTypes.Outcome.Win) {
@@ -86,7 +50,7 @@ contract SingleRPS is AdminControls {
         }
 
         // Charge a fee on the bet
-        uint256 fee = (winnings * FEE_PERCENTAGE) / 100;
+        uint256 fee = uint256((winnings * FEE_PERCENTAGE) / 100);
         adminPool += fee;
 
         // Pay out the winnings
@@ -98,13 +62,14 @@ contract SingleRPS is AdminControls {
     }
 
     // Function to place a bet
-    function placeBet(address player, uint256 bet) internal {
-        require(bet > 0, "Bet amount must be greater than zero");
-        require(bet <= MAX_BET, "Bet size exceeds maximum allowed");
-        require(player != address(0), "Invalid player address");
-        playerBets[player] = bet;
-        emit BetPlaced(player, bet);
+    function placeBet(address _player, uint256 _bet) internal {
+        require(_bet > 0, "Bet amount must be greater than zero");
+        require(_bet <= MAX_BET, "Bet size exceeds maximum allowed");
+        require(_player != address(0), "Invalid player address");
+        emit BetPlaced(_player, _bet);
     }
+
+
 
 
 }
