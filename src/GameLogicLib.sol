@@ -21,7 +21,7 @@ library GameLogicLib {
     }
 
     // Function to generate a random number
-    function generateRandom() internal view returns (uint) {
+    function generateRandom() internal view returns (uint256) {
         return uint256(bytes32(Sapphire.randomBytes(32, "")));
   }
 

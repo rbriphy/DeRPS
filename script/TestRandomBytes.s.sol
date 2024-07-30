@@ -23,11 +23,7 @@ contract TestRandomBytesScript is Script {
         SingleRPS singleRPS = new SingleRPS{value: 0.01 ether}();
         console.log("SingleRPS deployed to:", address(singleRPS));
 
-       
-
-
         vm.stopBroadcast();
     }
-
 
     }

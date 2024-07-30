@@ -20,6 +20,14 @@ contract SingleRPS is AdminControls {
     uint256 public constant MAX_BET = 1 ether;
     uint256 public constant FEE_PERCENTAGE = 1;
 
+    // Function to place a bet
+    function placeBet(address _player, uint256 _bet) internal {
+        require(_bet > 0, "Bet amount must be greater than zero");
+        require(_bet <= MAX_BET, "Bet size exceeds maximum allowed");
+        require(_bet <= adminPool, "Bet size exceeds maximum allowed");
+        require(_player != address(0), "Invalid player address");
+        emit BetPlaced(_player, _bet);
+    }
 
     // Function to play a game
     function playGame(SharedTypes.Move _move) public payable {
@@ -53,23 +61,13 @@ contract SingleRPS is AdminControls {
         uint256 fee = uint256((winnings * FEE_PERCENTAGE) / 100);
         adminPool += fee;
 
-        // Pay out the winnings
+        // Pay out the remainder
         (bool success, ) = payable(msg.sender).call{value: winnings - fee}("");
         require(success, "Transfer failed");
 
         // Emit an event with the game details
         emit GamePlayed(msg.sender, _move, opponentMove, outcome, msg.value, winnings);
     }
-
-    // Function to place a bet
-    function placeBet(address _player, uint256 _bet) internal {
-        require(_bet > 0, "Bet amount must be greater than zero");
-        require(_bet <= MAX_BET, "Bet size exceeds maximum allowed");
-        require(_player != address(0), "Invalid player address");
-        emit BetPlaced(_player, _bet);
-    }
-
-
 
 
 }
