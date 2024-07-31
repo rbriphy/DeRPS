@@ -70,4 +70,13 @@ contract SingleRPS is AdminControls {
     }
 
 
+    // Tests    
+    function testGenerateRandom() public view returns(uint256 randomBig) {
+        randomBig = GameLogicLib.generateRandom();
+    }
+    function testRandomModulo() public view returns(uint256 randomMod) {
+        randomMod = GameLogicLib.generateRandom() % 3;
+        
+    }
+
 }
