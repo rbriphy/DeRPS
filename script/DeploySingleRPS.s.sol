@@ -2,23 +2,34 @@
 pragma solidity ^0.8.23;
 
 import {Script, console} from "../lib/forge-std/src/Script.sol";
-import {SingleRPS as ImportedSingleRPS} from "../src/SingleRPS.sol";
+import {SingleRPS} from "../src/SingleRPS.sol";
 import "../src/SharedTypes.sol";
 import "../src/GameLogicLib.sol";
 
-contract DeploySingleRPSScript is Script {
-    
-    function setUp() public {}
+contract DeploySingleRPS is Script {
 
-    function run() public {
-        uint256 deployerPrivateKey = vm.envUint("SAPPHIRE_PRIVATE_KEY");
-                
-        vm.startBroadcast(deployerPrivateKey);
+
+       function run() external returns(SingleRPS) {
         
-        ImportedSingleRPS singleRPS = new ImportedSingleRPS{value: 0.01 ether}();
-        console.log("SingleRPS deployed to:", address(singleRPS));
+        uint256 deployerPrivateKey;
+        
+        if (block.chainid == 23295) {
+            deployerPrivateKey = vm.envUint("SAPPHIRE_PRIVATE_KEY");
 
+        }
+        else {
+            deployerPrivateKey = vm.envUint("ANVIL_PRIVATE_KEY");
+        }
+        
+        
+        vm.startBroadcast(deployerPrivateKey);
+        SingleRPS singleRPS = new SingleRPS();
+        vm.deal(address(singleRPS), 1 ether);
         vm.stopBroadcast();
+        
+        console.log("singleRPS deployed to:", address(singleRPS));
+
+        return (singleRPS);
     }
 }
 
